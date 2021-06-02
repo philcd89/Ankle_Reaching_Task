@@ -25,8 +25,16 @@ import MotionSDK
 #%% Get trial Conditions
 
 # Get trial conditions
-condfile = open("trial_conditions.txt", "r")
-trial_conditions = np.asarray(list(map(int, condfile.readlines())))
+condfile = open("example_conditions.txt", "r")
+example_conditions = np.asarray(list(map(int, condfile.readlines())))
+condfile = open("AP_conditions.txt", "r")
+AP_conditions = np.asarray(list(map(int, condfile.readlines())))
+condfile = open("APML_conditions.txt", "r")
+APML_conditions = np.asarray(list(map(int, condfile.readlines())))
+condfile = open("VMR_conditions.txt", "r")
+VMR_conditions = np.asarray(list(map(int, condfile.readlines())))
+
+
 
 #%% Initialize Screen and Set target parameters
 
@@ -115,35 +123,7 @@ def CursPos(x, y, CursRad, color):
     # Cursor Parameters
     pygame.draw.circle(screen, color, (x, y), CursRad)    
     
-#%% INSTRUCTIONS
-run = True
-finished_Instructions = False
 
-#Instructions
-while run:
-    
-    # persistent parameters should stay in while loop
-        
-    # --------- GET EVENTS ---------- 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit("User quit game")
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                finished_Instructions = True
-    
-    
-    # --------- INSTRUCTIONS -----------
-    
-    # first, show some instructions
-    Instructions()
-        
-    if finished_Instructions:
-        Blank_Screen(black)
-        pygame.display.update() 
-        pygame.time.wait(2000)
-        run = False
     
   
 #%% IMU Control
@@ -160,7 +140,39 @@ def parse_name_map(xml_node_list):
 
     return name_map
 
-def stream_data_to_csv(args, out, out2, theta):
+def stream_data_to_csv(args, out, out2, theta, conditions, block):
+    
+    #%% INSTRUCTIONS
+    run = True
+    finished_Instructions = False
+
+    #Instructions
+    while run:
+    
+        # persistent parameters should stay in while loop
+            
+        # --------- GET EVENTS ---------- 
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit("User quit game")
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    finished_Instructions = True
+        
+        
+        # --------- INSTRUCTIONS -----------
+        
+        # first, show some instructions
+        Instructions()
+        
+        if finished_Instructions:
+            Blank_Screen(black)
+            pygame.display.update() 
+            pygame.time.wait(2000)
+            run = False
+    
+    
     client = MotionSDK.Client(args.host, args.port)
 
     #
@@ -285,16 +297,18 @@ def stream_data_to_csv(args, out, out2, theta):
                         "unknown data format, unabled to print header")
 
                 headerOut = ",".join(["{}".format(v) for v in flat_list])
-                headerOut = "sampleNum," + headerOut + "," + "CursorX," + "CursorY" + "\n"
-                out.write(headerOut)
+                headerOut = "sampleNum," + "trial_sample," + "block," + "trial," + "trial_cond," + headerOut + "," + "CursorX," + "CursorY," + "cue_on," + "move_out," + "move_back" + "\n"
+                if block == 0:
+                    out.write(headerOut)
                 
                 # out.write(
                 #     ",".join(["{}".format(v) for v in flat_list]))
                 
                 # ---------- creating trialOut header here as well ----------
-                trialOut_header = ",".join(["trial", "trial_cond", "trial_start_time", "cue_on_time", "move_start_time", "curs_in_targ_time", "trial_abort"])
+                trialOut_header = ",".join(["block", "trial", "trial_cond", "trial_start_time", "cue_on_time", "move_start_time", "curs_in_targ_time", "trial_abort"])
                 trialOut_header = trialOut_header + "\n"
-                out2.write(trialOut_header)
+                if block == 0:
+                    out2.write(trialOut_header)
                 
             xml_node_list = None
 
@@ -315,6 +329,9 @@ def stream_data_to_csv(args, out, out2, theta):
         
         if trial_sample == 1:
             trial_start_time = pygame.time.get_ticks()
+            
+        sample += 1
+        trial_sample += 1
         
         # Get some constants for this loop
         pygame.mouse.set_visible(False)
@@ -337,8 +354,9 @@ def stream_data_to_csv(args, out, out2, theta):
         
         
         # ---------- SET TRIAL CONDITION -----------
-        
-        trial_cond = trial_conditions[trial]
+        # if trial == len(conditions)+1:
+        #     break
+        trial_cond = conditions[trial-1]
         
         if trial_cond == 1 or trial_cond == 4:
             TargX_cur = Targ1X
@@ -501,7 +519,7 @@ def stream_data_to_csv(args, out, out2, theta):
         if not move_back and move_back_prev: #if move_back switches from true to false, signalling the end of the trial, advance the trial number
             trial_sample = 1
             move_back = False
-            trialOut = [trial, trial_cond, trial_start_time, cue_on_time, move_start_time, curs_in_targ_time]
+            trialOut = [block, trial, trial_cond, trial_start_time, cue_on_time, move_start_time, curs_in_targ_time]
             trialOut = ",".join(["{}".format(str(round(v, 8))) for v in trialOut])
             trialOut = trialOut + "\n"
             out2.write(trialOut)
@@ -521,7 +539,7 @@ def stream_data_to_csv(args, out, out2, theta):
         pygame.display.update()
         
         # ------------ SCOPE ------------
-        print("Trial: " + str(trial))
+        print("Trial: " + str(trial) + "; current_time: " + str(current_time) + "; trial_start_time: " + str(trial_start_time) + "; current_time - trial_start_time: " + str(current_time-trial_start_time))
         
         
         
@@ -530,23 +548,28 @@ def stream_data_to_csv(args, out, out2, theta):
         if cue_on and not cue_on_prev:
             cue_on_time = pygame.time.get_ticks()
         
-        if current_time - cue_on_time > 10000 and cue_on == True:
+        if current_time - cue_on_time > 15000 and cue_on:
             trial_sample = 1
             cue_on = False
             curs_in_home = False
             move_out = False
+            move_back = False
             trial_abort = True
-            trialOut = [trial, trial_cond, trial_start_time, cue_on_time, move_start_time, curs_in_targ_time, trial_abort]
+            trialOut = [block, trial, trial_cond, trial_start_time, cue_on_time, move_start_time, curs_in_targ_time, trial_abort]
             trialOut = ",".join(["{}".format(str(round(v, 8))) for v in trialOut])
             trialOut = trialOut + "\n"
             out2.write(trialOut)
             trial += 1
             trial_abort = False
-        elif current_time - trial_start_time > 15000 and cue_on == False: # 15 seconds
+            cue_on_time = 1000000
+        elif current_time - trial_start_time > 20000 and not cue_on: # 15 seconds
             trial_sample = 1
+            cue_on = False
             curs_in_home = False
             trial_abort = True
-            trialOut = [trial, trial_cond, trial_start_time, cue_on_time, move_start_time, curs_in_targ_time, trial_abort]
+            move_out = False
+            move_back = False
+            trialOut = [block, trial, trial_cond, trial_start_time, cue_on_time, move_start_time, curs_in_targ_time, trial_abort]
             trialOut = ",".join(["{}".format(str(round(v, 8))) for v in trialOut])
             trialOut = trialOut + "\n"
             out2.write(trialOut)
@@ -559,21 +582,21 @@ def stream_data_to_csv(args, out, out2, theta):
         # ------------ SAVE DATA --------------
         
         dataOut = ",".join(["{}".format(round(v, 8)) for v in flat_list])
-        dataOut = str(sample) + "," + str(trial_sample) + "," + str(trial) + "," + str(trial_cond) + "," + dataOut + "," + str(CursX) + "," + str(CursY) + "," + str(cue_on) + "," + str(move_out) + "," + str(move_back) + "\n"
+        dataOut = str(sample) + "," + str(trial_sample) + "," + str(block) + "," + str(trial) + "," + str(trial_cond) + "," + dataOut + "," + str(CursX) + "," + str(CursY) + "," + str(cue_on) + "," + str(move_out) + "," + str(move_back) + "\n"
         
         out.write(dataOut)
-
-        sample += 1
-        trial_sample += 1
 
         if args.frames > 0:
             num_frames += 1
             if num_frames >= args.frames:
                 break
+            
+        if trial == len(conditions)+1:
+            break
 
 #%% Define input args
             
-def main(argv, theta):
+def main(argv, theta, conditions, block):
     parser = argparse.ArgumentParser(
         description="")
 
@@ -605,12 +628,18 @@ def main(argv, theta):
     args = parser.parse_args()
 
     if args.datafile or args.trialfile:
-        with open(args.datafile, 'w') as f1, open(args.trialfile, "w") as f2:
-            stream_data_to_csv(args, f1, f2, theta)
+        with open(args.datafile, 'a') as f1, open(args.trialfile, "a") as f2:
+            stream_data_to_csv(args, f1, f2, theta, conditions, block)
     else:
-        stream_data_to_csv(args, sys.stdout, theta)
+        stream_data_to_csv(args, sys.stdout, theta, conditions, block)
         
 #%% RUN THIS THANNGGGG
 if __name__ == "__main__":
     #screen, theta = Calibration.Compute_Calib_Theta()
-    sys.exit(main(sys.argv, theta = 0))
+    main(sys.argv, theta = 0, conditions = example_conditions, block = 0)
+    main(sys.argv, theta = 0, conditions = AP_conditions, block = 1)
+    main(sys.argv, theta = 0, conditions = AP_conditions, block = 2)
+    main(sys.argv, theta = 0, conditions = APML_conditions, block = 3)
+    main(sys.argv, theta = 0, conditions = APML_conditions, block = 4)
+    main(sys.argv, theta = 0, conditions = VMR_conditions, block = 5)
+    main(sys.argv, theta = 0, conditions = VMR_conditions, block = 6)
