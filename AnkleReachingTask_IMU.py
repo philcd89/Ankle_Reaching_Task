@@ -550,6 +550,7 @@ def stream_data_to_csv(args, out, out2, theta, conditions, block):
         
         if current_time - cue_on_time > 15000 and cue_on:
             trial_sample = 1
+            targ_hit = False
             cue_on = False
             curs_in_home = False
             move_out = False
@@ -564,11 +565,12 @@ def stream_data_to_csv(args, out, out2, theta, conditions, block):
             cue_on_time = 1000000
         elif current_time - trial_start_time > 20000 and not cue_on: # 15 seconds
             trial_sample = 1
+            targ_hit = False
             cue_on = False
             curs_in_home = False
-            trial_abort = True
             move_out = False
             move_back = False
+            trial_abort = True
             trialOut = [block, trial, trial_cond, trial_start_time, cue_on_time, move_start_time, curs_in_targ_time, trial_abort]
             trialOut = ",".join(["{}".format(str(round(v, 8))) for v in trialOut])
             trialOut = trialOut + "\n"
@@ -643,3 +645,4 @@ if __name__ == "__main__":
     main(sys.argv, theta = 0, conditions = APML_conditions, block = 4)
     main(sys.argv, theta = 0, conditions = VMR_conditions, block = 5)
     main(sys.argv, theta = 0, conditions = VMR_conditions, block = 6)
+    pygame.quit()
