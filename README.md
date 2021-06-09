@@ -12,7 +12,7 @@ This task is designed to replicate a task by Dr. Bijan Najafi and colleagues.  H
 
 ## Files in this repository
 
-* *README.md*: You're looking at it!  This file provides info about the task, the files in this repository, 
+* *README.md*: You're looking at it!  This file provides info about the task, the files in this repository, and other useful info.
 * *AnkleReachingTask_IMU.py*: This is the main file that runs the task
 * *MotionSDK.py*: This file is made by MotionNode and supplies functions used to read data from the IMUs
 * *Calibration.py*: This file is used to account variation in the placement of the IMU on the participants leg, and also to account for the participant's subjective "straight ahead" knee flexion/extension.  This is currently NOT used by the task.
@@ -62,7 +62,7 @@ MotionNode IMUs need to be applied to the participant in a specific way for this
      <img src="https://user-images.githubusercontent.com/48997660/121388792-c5831680-c919-11eb-84fd-ba450e054f99.JPG" width="150" height="200">
 
 2) Don the IMU belt, positioning the waist IMU in the center of the back, at approximately the L4 vertebra.  
-3) **WARNING: THIS STEP IS CRITICAL.** The IMUs are labeled according to their segments.  They should be placed on the **OUTSIDE** of the leg on their respective segments, **WIRES UP**.  This is particularly important for the shank IMUs, which are the IMUs drive the task.  Do your best to place the IMUs such that they'll move in the sagittal plane. Note: I like to wiggle the IMUs into the velcro to make sure the velcro digs in well.  You can also wrap the IMUs in athletic prewrap to keep them secure.  Wire slack can be taken in with clips.
+3) **WARNING: THIS STEP IS CRITICAL.** The IMUs are labeled according to their segments.  While the participant is standing, they should be placed on the **OUTSIDE** of the leg on their respective segments, **WIRES UP**.  This is particularly important for the shank IMUs, which are the IMUs drive the task.  **Do your best to place the IMUs such that they'll move in the sagittal plane and the participant performs the task**. Note: I like to wiggle the IMUs into the velcro to make sure the velcro digs in well.  You can also wrap the IMUs in athletic prewrap to keep them secure.  Wire slack can be taken in with clips.
 
      <img src="https://user-images.githubusercontent.com/48997660/121392287-3d9f0b80-c91d-11eb-8a10-8208068bfb63.JPG" width="150" height="200">
 
@@ -102,20 +102,17 @@ MotionNode IMUs need to be applied to the participant in a specific way for this
 
 The task consists of several blocks, in this order:
 
-1) Calibration Block: During this period, the participant makes repetitive knee flexion-extension movements for about 10 seconds.  These movements are used to account for variability in the IMU placement on the leg, and determine the participant's subjective "straight ahead" leg movements.  Participants should be verbally encouraged to move their leg in a straight forward and back manner.  These movements don't need to be overly fast, but should be nice and smooth.
-2) Practice block: 16 trials which allow the participant to understand the tasks.  The obstacle appears every other trial, and the obstacle trials cycle through the 4 obstacle conditions twice.
-3) Calibration Block
-4) Experimental Block 1: 40 trials.  Trials are pseudorandomly presented across the 5 conditions.  Consists of 20 non-obstacle trials and 5 trials of each obstacle condition.  Subsequent Experimental blocks follow this structure.
-5) Calibration Block
-6) Experimental Block 2
-7) Calibration Block
-8) Experimental Block 3
-9) Calibration Block
-10) Experimental Block 4
-11) Calibration Block
-12) Experimental Block 5
+1) Practice block: 16 trials which allow the participant to understand the tasks.  The obstacle appears every other trial, and the obstacle trials cycle through the 4 obstacle conditions twice.
+2) Block 1, AP Reaching: 20 trials of straight forward reaches (condition 1)
+3) Block 2, AP Reaching: same as Block 1
+4) Block 3, APML Reaching: 20 trials, with 3 targets; straight ahead, 30 degrees to the left, and 30 degrees to the right (Conditions 1, 2, and 3).  Targets are presented pseudorandomly
+5) Block 4, APML Reaching: same as Block 3
+6) Block 5, VMR Reaching: 20 trials, with 1 straight ahead target (condition 4).  However, there is also a 20 degree clockwise visuomotor rotation
+7) Block 6, VMR Reaching: same as Block 5
 
 Instructions are presented to the participant prior to the Practice Block and each Experimental Block.  Each Instruction page can also serve as a break period.
+
+Note: Conditions 5 and 6 are currently unused, but are able to be added by adding them to the condition text files.
 
 <br>
 
@@ -138,8 +135,6 @@ The datafile, or "mydatafile.txt", captures the data on a sample by sample basis
 9) cue_on: a logical value indicating whether the cue has turned on
 10) move_out: a logical value indicating that the participant is moving from the home posiiton to the target
 11) move_back: a logical value indicating that the participant is moving from the target to the home position
-12) show_obstacle: a logical value indicating whether the obstacle is present on the screen
-13) obst_hit: a logical value indicating whether the cursor contacted the obstacle
 
 A note about the cursor location - it's a little weird.  The coordinate system origin for pygame is located in the upper left corner of the window.  Thus, increasing X numbers mean the cursor is moving *rightwards* on the screen.  Increasing Y numbers unintuitavely mean the cursor is moving *downwards* on the screen (see picture below; the red box indicates a given screen).  So, a little math will have to be done in post-processing to change these coordinates to a normal cartesian coordinate frame (this is something I'd look to fix in updates of this task).
 
@@ -157,10 +152,8 @@ The trialfile, or "mytrialfile.txt", captures the data on a trial by trial basis
 4) trial_start_time: The time since the beginning of the experiment in milliseconds when the trial started.
 5) cue_on_time: The time since the beginning of the experiment in milliseconds when the cue turned on for a given trial since
 6) move_start_time: The time since the beginning of the experiment in milliseconds when the participant first began to move
-7) obst_hit: a boolean value indicating whether the participant contacted the obstacle during the trial (0 = successful avoidance, 1 = hit)
-8) curs_in_obst_time: The time since the beginning of the experiment in milliseconds when the participant hit the obstacle.  If obst_hit is 0, this number is meaningless (interited from the last time the obstacle was hit).
-9) curs_in_targ_time: The time since the beginning of the experiment in milliseconds when the participant hits the target.
-10) trial_abort: If the participant does not complete the trial within 20 seconds, the trial aborts and the experiment moves on to the next trial; all data for these lines are invalid (1 = trial aborted, NA = trial not aborted).
+7) curs_in_targ_time: The time since the beginning of the experiment in milliseconds when the participant hits the target.
+8) trial_abort: If the participant does not complete the trial within 20 seconds, the trial aborts and the experiment moves on to the next trial; all data for these lines are invalid (1 = trial aborted, NA = trial not aborted).
 
 <br>
 
