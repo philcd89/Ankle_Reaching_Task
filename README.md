@@ -167,7 +167,6 @@ Feel free to contribute, share, and post issues.
 
 * Modify cursor position output
 * Modify timing output so it's relative to the trial start instead of the experiment start
-* Add code for use with left leg.
 
 <br><br>
 
