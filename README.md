@@ -2,6 +2,10 @@
 
 This is a motor control task in which participants shift their weight (e.g., knee flexion/extension) while Inertial Measurement Units (IMUs) to control a cursor on a screen and move it between two points.  This code uses [MotionNode](https://www.motionnode.com/) sensors and borrows heavily from their SDK.  This task was created by Phil Desrochers for the Motor Development Lab at Boston University.  Note: This task was my first time using Python, so don't judge my janky code too much.
 
+This task is designed to replicate a task by Dr. Bijan Najafi and colleagues.  Here are a couple papers that use this task:
+* [Assessing Postural Control and Postural Control Strategy in Diabetes Patients Using Innovative and Wearable Technology](https://journals.sagepub.com/doi/10.1177/193229681000400403)
+* [Interactive Sensor-Based Balance Training in Older Cancer Patients with Chemotherapy-Induced Peripheral Neuropathy: A Randomized Controlled Trial](https://www.karger.com/Article/Abstract/442253)
+
 **PURPOSE:** The purpose of this task is to investigate how participants are able to shift their weight.  This task can also be used as an intervention to promote weight shifting exercises and promote postural control.
 
 <br>
@@ -9,27 +13,27 @@ This is a motor control task in which participants shift their weight (e.g., kne
 ## Files in this repository
 
 * *README.md*: You're looking at it!  This file provides info about the task, the files in this repository, 
-* *LL_obstacle_avoidance_task_IMU.py*: This is the main file that runs the task
+* *AnkleReachingTask_IMU.py*: This is the main file that runs the task
 * *MotionSDK.py*: This file is made by MotionNode and supplies functions used to read data from the IMUs
-* *Calibration.py*: This file is used to account variation in the placement of the IMU on the participants leg, and also to account for the participant's subjective "straight ahead" knee flexion/extension.
-* *trial_conditions_example.txt*: This text file contains the condition numbers for each trial run in a PRACTICE block.  Any block calling this text file will run the number of trials equivalent to lines in this file (i.e., this file determines the number of trials in a block, as well as the condition type of each trial).
-* *trial_conditions.txt*: This text file contains the condition numbers for each trial run in an EXPERIMENTAL block.  Any block calling this text file will run the number of trials equivalent to lines in this file (i.e., this file determines the number of trials in a block, as well as the condition type of each trial).
-* *LICENSE*: This file provides a Creative Commons License for this project
+* *Calibration.py*: This file is used to account variation in the placement of the IMU on the participants leg, and also to account for the participant's subjective "straight ahead" knee flexion/extension.  This is currently NOT used by the task.
+* *example_conditions.txt*: This text file contains the condition numbers for each trial run in a PRACTICE block.  Any block calling this text file will run the number of trials equivalent to lines in this file (i.e., this file determines the number of trials in a block, as well as the condition type of each trial).
+* *AP_conditions.txt*: This text file contains the condition numbers for each trial run in the Anterior-Posterior Reaching block.  Any block calling this text file will run the number of trials equivalent to lines in this file (i.e., this file determines the number of trials in a block, as well as the condition type of each trial).
+* *APML_conditions.txt*: This text file contains the condition numbers for each trial run in the Anterior-Posterior + Mediolateral Reaching block.  Any block calling this text file will run the number of trials equivalent to lines in this file (i.e., this file determines the number of trials in a block, as well as the condition type of each trial).
+* *VMR_conditions.txt*: This text file contains the condition numbers for each trial run in the Anterior-Posterior with Visuomotor Rotation Reaching block.  Any block calling this text file will run the number of trials equivalent to lines in this file (i.e., this file determines the number of trials in a block, as well as the condition type of each trial).
 
 <br>
 
 ## Understanding Trial Conditions
 
-There are 5 trial types (i.e., conditions) in this task:
-1) No Obstacle (Condition 0)
-2) Obstacle appears prior to cue (Condition 1)
-3) Obstacle appears with cue (Condition 2)
-4) Obstacle appears with movement onset (Condition 3)
-5) Obstacle appears at 20% of movement amplitude (Condition 4)
+There are 6 trial types (i.e., conditions) in this task:
+1) Forward Reach (Condition 1)
+2) Leftward Reach (Condition 2)
+3) Rightward Reach (Condition 3)
+4) Forward Reach with 20 degree visuomotor rotation (Condition 4)
+5) Leftward Reach with 20 degree visuomotor rotation (Condition 5)
+6) Rightward Reach with 20 degree visuomotor rotation (Condition 6)
 
-This purpose of this condition design is to probe how the motor system is able to alter online movements when new information is supplied at different stages in the motor planning/execution process.
-
-In the *trial_conditions.txt* and *trial_conditions_example* files the condition of each trial is denoted by the condition number on each line, one line per trial.
+In the conditions text files, the condition of each trial is denoted by the condition number on each line, one line per trial.
 
 <br>
 
@@ -80,15 +84,15 @@ MotionNode IMUs need to be applied to the participant in a specific way for this
 
 ## Running the task
 
-1) Seat the participant with the IMUs on in front of the computer.  Make sure the participant can comfortably flex and extend their legs.
+1) The participant should stand in front of the computer.  Make sure the participant can comfortably flex and extend their legs.
 2) Open Anaconda Powershell Prompt.  This should be located with the Ananconda installation in the Start Menu or Apps menu, or you can search this on the computer and it should come right up.
-3) Change the directory to the place where *LL_obstacle_avoidance_task_IMU.py* is stored on the computer.  For Laptop Z, these should be in a folder called *LL_obstacle_avoidance_task_IMU-main* which itself is in the *Documents* folder.  To change the directory, use the "cd" command, followed by the directory of the folder in quotes.  For example:
+3) Change the directory to the place where *AnkleReachingTask_IMU.py* is stored on the computer.  For Laptop Z, these should be in a folder called *Ankle_Reaching_Task-main* which itself is in the *Documents* folder.  To change the directory, use the "cd" command, followed by the directory of the folder in quotes.  For example:
 
-     `cd "C:\Users\philc\Documents\LL_obstacle_avoidance_task_IMU-main"`
+     `cd "C:\Users\philc\Documents\Ankle_Reaching_Task-main"`
      
 3) To run the task, type the following:
 
-     `LL_obstacle_avoidance_task_IMU.py --header --datafile="mydatafile.txt" --trialfile="mytrialfile.txt"`
+     `AnkleReachingTask_IMU.py --header --datafile="mydatafile.txt" --trialfile="mytrialfile.txt"`
      
      The text "mydatafile.txt" and "mytrialfile.txt" are where the data are saved.  These can be replaced by another valid filename (i.e., subject number, etc.).  More on output below.
      
